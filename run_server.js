@@ -8,15 +8,19 @@ http.createServer(function (req, res) {
         'Content-Type': 'text/plain'
     });
     res.end('Hello World\n');
-    const file = fs.createWriteStream("pic");
+    const file = fs.createWriteStream("video");
 
     (async function () {
-        let res = await httpGet("https://www.instagram.com/p/B-AKqROBEeS/?utm_source=ig_web_button_share_sheet");
-
+        // let res = await httpGet("https://www.instagram.com/p/B-AKqROBEeS/?utm_source=ig_web_button_share_sheet");
+        let res = await httpGet("https://www.instagram.com/p/B-C0QHdhkQN/?utm_source=ig_web_button_share_sheet");
 
         let content = res.substr(res.indexOf('graphql') - 2);
         content = content.substr(0, content.indexOf('</script>') - 2);
-        content = content.substr(content.indexOf('"display_url":') + 15);
+        if (content.contains('"is_video":false')) {
+            content = content.substr(content.indexOf('"display_url":') + 15);
+        } else if (content.contains('"is_video":true')) {
+            content = content.substr(content.indexOf('"video_url":') + 13);
+        }
         content = content.substr(0, content.indexOf('",'));
         content = content.replace(/\\u0026/g, "&");
 
