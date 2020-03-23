@@ -14,7 +14,7 @@
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
-    
+
 
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
@@ -33,13 +33,16 @@
                             </a>
                         </div>
                         <div class="login-form">
-                            <form action="http://127.0.0.1:3000/" method="post">
+                            <form id="urlForm" action="" method="post" onsubmit="download(event)">
                                 <div class="form-group">
                                     <label>Enter link here:</label>
-                                    <input class="au-input au-input--full" type="url" name="url" placeholder="https://www.instagram.com/p/...">
+                                    <input class="au-input au-input--full" type="url" name="url"
+                                        placeholder="https://www.instagram.com/p/...">
                                 </div>
-                                <button class="au-btn au-btn--block au-btn--green m-b-20" type="submit">Download</button>
+                                <input class="au-btn au-btn--block au-btn--green m-b-20"
+                                    type="submit" value="Download"/>
                             </form>
+                            <label id="response"></label>
                         </div>
                     </div>
                 </div>
@@ -47,6 +50,25 @@
         </div>
 
     </div>
+    <script type="text/javascript">
+        function download(event) {
+            event.preventDefault();
+            let x_http = new XMLHttpRequest();
+            x_http.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert(this.responseText)
+                    document.getElementById("response").innerHTML = this.responseText;
+                }
+            };
+            x_http.open("POST", "http://127.0.0.1:3000/", true);
+
+            let form = document.forms[0];
+
+            x_http.send(form['url'].value);
+
+            return false;
+        }
+    </script>
 </body>
 
 </html>
