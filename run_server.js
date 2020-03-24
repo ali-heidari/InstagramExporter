@@ -17,15 +17,13 @@ http.createServer(function (req, res) {
         data.push(chunk)
     })
     req.on('end', () => {
-        const postURL=data.join('').trim()
+        const postURL = data.join('').trim()
         // Make sure requested link is instagram post
-        if(!postURL.startsWith('https://www.instagram.com/p/'))return;
+        if (!postURL.startsWith('https://www.instagram.com/p/')) return;
         // Write something in response
         res.end('Processing\n');
-        // Store saved file in a file with random name
-        let file = fs.createWriteStream((new Date().getTime() / 1000).toString() + ".temp.file");
 
-        (async function () {
+        (async function (response) {
             // Request to the given url, which is instagram post url
             let res = await httpGet(decodeURIComponent());
             // Instagram pages contain a JavaScript object which after load, converts to HTML element
@@ -44,9 +42,12 @@ http.createServer(function (req, res) {
             content = content.replace(/\\u0026/g, "&");
             // Request the file and store it in a temp file
             https.get(content, res => {
-                res.pipe(file);
+                // Set response headers
+                response.setHeader('Content-Type', res.headers['content-type']);
+                // Write into client
+                res.pipe(response);
             });
-        })();
+        })(res);
     })
 }).listen(3000, "127.0.0.1");
 console.log('Server running at http://127.0.0.1:3000/');
