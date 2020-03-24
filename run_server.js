@@ -1,14 +1,9 @@
 // Import modules
 const https = require('https');
 const http = require('http');
-const fs = require('fs');
 
 // Create a server and accept incoming request
 http.createServer(function (req, res) {
-    // Response type
-    res.writeHead(200, {
-        'Content-Type': 'text/plain'
-    });
     // Reject favicon requests which some browser make second request for it 
     if (req.url === "/favicon.ico") return;
     // Store incoming data, the post body
@@ -20,12 +15,10 @@ http.createServer(function (req, res) {
         const postURL = data.join('').trim()
         // Make sure requested link is instagram post
         if (!postURL.startsWith('https://www.instagram.com/p/')) return;
-        // Write something in response
-        res.end('Processing\n');
 
         (async function (response) {
             // Request to the given url, which is instagram post url
-            let res = await httpGet(decodeURIComponent());
+            let res = await httpGet(postURL);
             // Instagram pages contain a JavaScript object which after load, converts to HTML element
             // This means we do not have access to HTML elements before some scripts to run 
             // Extract the script content  
@@ -43,7 +36,11 @@ http.createServer(function (req, res) {
             // Request the file and store it in a temp file
             https.get(content, res => {
                 // Set response headers
-                response.setHeader('Content-Type', res.headers['content-type']);
+                response.writeHead(200, {
+                    'Content-Type': res.headers['content-type'],
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+                });
                 // Write into client
                 res.pipe(response);
             });

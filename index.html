@@ -39,8 +39,8 @@
                                     <input class="au-input au-input--full" type="url" name="url"
                                         placeholder="https://www.instagram.com/p/...">
                                 </div>
-                                <input class="au-btn au-btn--block au-btn--green m-b-20"
-                                    type="submit" value="Download"/>
+                                <input class="au-btn au-btn--block au-btn--green m-b-20" type="submit"
+                                    value="Download" />
                             </form>
                             <label id="response"></label>
                         </div>
@@ -53,18 +53,38 @@
     <script type="text/javascript">
         function download(event) {
             event.preventDefault();
-            let x_http = new XMLHttpRequest();
-            x_http.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    alert(this.responseText)
-                    document.getElementById("response").innerHTML = this.responseText;
+            var data = document.forms[0]['url'].value;
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+                    var filename = "file."+xhr.response.type.split('/')[1];
+
+                    // The actual download
+                    var blob = new Blob([xhr.response], {
+                        type: xhr.response.type
+                    });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    document.body.removeChild(link);
                 }
-            };
-            x_http.open("POST", "http://127.0.0.1:3000/", true);
+            });
 
-            let form = document.forms[0];
+            xhr.open("POST", "http://127.0.0.1:3000/");
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            xhr.responseType = 'blob';
 
-            x_http.send(form['url'].value);
+
+            xhr.send(data);
+
+
 
             return false;
         }
