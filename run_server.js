@@ -17,6 +17,9 @@ http.createServer(function (req, res) {
         data.push(chunk)
     })
     req.on('end', () => {
+        const postURL=data.join('').trim()
+        // Make sure requested link is instagram post
+        if(!postURL.startsWith('https://www.instagram.com/p/'))return;
         // Write something in response
         res.end('Processing\n');
         // Store saved file in a file with random name
@@ -24,7 +27,7 @@ http.createServer(function (req, res) {
 
         (async function () {
             // Request to the given url, which is instagram post url
-            let res = await httpGet(decodeURIComponent(data.join('').trim()));
+            let res = await httpGet(decodeURIComponent());
             // Instagram pages contain a JavaScript object which after load, converts to HTML element
             // This means we do not have access to HTML elements before some scripts to run 
             // Extract the script content  
